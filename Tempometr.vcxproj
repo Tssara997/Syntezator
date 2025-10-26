@@ -125,7 +125,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="tempometr.cpp" />
+    <ClCompile Include="Fala.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Metronom.cpp" />
+    <ClCompile Include="testing.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="sounds\barr.wav" />
@@ -133,7 +136,14 @@
     <Media Include="sounds\metronome_sound.wav" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Fala.h" />
+    <ClInclude Include="Metronom.h" />
     <ClInclude Include="SoundNotLoadingExepction.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="rysowanie.py">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
