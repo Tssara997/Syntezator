@@ -18,7 +18,6 @@ protected:
 	int tempo;
 	double czasInterwalu;
 	int numerInterwalu;
-	bool aktywny;
 	std::chrono::steady_clock::time_point start;
 
 	bool zobaczCzyInterwal();
@@ -28,5 +27,7 @@ public:
 	Metronom(int tempo = defTempo);
 	~Metronom() = default;
 	void play();
+	int getTempo() const;
+	void changeTempo(int tempo);
 	void quit();
 };

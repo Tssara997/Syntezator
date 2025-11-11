@@ -49,8 +49,18 @@
     <ClInclude Include="Metronom.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
+    <ClInclude Include="WAVHeader.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="rysowanie.py" />
+    <None Include="CanvasButton.py" />
+    <None Include="Przyciski.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="logo.png">
+      <Filter>Pliki zasobów</Filter>
+    </Image>
   </ItemGroup>
 </Project>

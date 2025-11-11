@@ -1,6 +1,6 @@
 #include "Metronom.h"
 
-Metronom::Metronom(int tempo) : tempo{ tempo }, czasInterwalu{}, numerInterwalu{}, aktywny{ defAktywny }, start{ std::chrono::steady_clock::now() } {
+Metronom::Metronom(int tempo) : tempo{ tempo }, czasInterwalu{}, numerInterwalu{}, start{ std::chrono::steady_clock::now() } {
 	obliczanieTrwaniaTempa();
 }
 
@@ -41,19 +41,26 @@ const void Metronom::playSound() const {
 }
 
 void Metronom::play() {
-	aktywny = true;
-	while (aktywny) {
-		if (zobaczCzyInterwal()) {
-			try {
-				playSound();
-			}
-			catch(const SoundNotLoadingExepction& ex) {
-				std::cerr << ex.what() << std::endl;
-			}
+	if (zobaczCzyInterwal()) {
+		try {
+			playSound();
+		}
+		catch(const SoundNotLoadingExepction& ex) {
+			std::cerr << ex.what() << std::endl;
 		}
 	}
 }
 
 void Metronom::quit() {
-	aktywny = false;
+	this->numerInterwalu = 0;
+}
+
+int Metronom::getTempo() const {
+	return tempo;
+}
+
+void Metronom::changeTempo(int tempo) {
+	this->tempo = tempo;
+	this->numerInterwalu = 0;
+	obliczanieTrwaniaTempa();
 }
