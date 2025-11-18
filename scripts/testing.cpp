@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 #include <memory>
+#include <string>
 
 #pragma comment(lib, "xaudio2.lib")
 
@@ -17,12 +18,14 @@ SoundData FromWavFile(const std::string& path);
 
 SoundData FromCsvFile(const std::string& path);
 
-int main() {
+
+void test();
+int main2() {
 	// inicjalizacja XAudio2
 
 	IXAudio2* xaudio = nullptr;
 	HRESULT hrT = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-	std::cout << "CoInitializeEx hr=0x" << std::hex << hrT << std::dec << "\n";
+	//std::cout << "CoInitializeEx hr=0x" << std::hex << hrT << std::dec << "\n";
 	if (FAILED(XAudio2Create(&xaudio, 0))) {
 		std::cerr << "XAudioCreate Failed" << std::endl;
 		return -1;
@@ -32,16 +35,13 @@ int main() {
 	xaudio->CreateMasteringVoice(&master);
 
 	// wczytujemy probki WAV
-	SoundData wav1 = FromWavFile("sounds\\barr.wav");
-	SoundData wav2 = FromWavFile("sounds\\bitt.wav");
+	SoundData wav1 = FromCsvFile("dane\\dane.csv");
 	// trowrzymy source voice
 	IXAudio2SourceVoice* voice1{};
-	IXAudio2SourceVoice* voice2{};
 
 	std::cout << wav1.wfx.wFormatTag << ' ' << wav1.wfx.wBitsPerSample << ' ' << wav1.wfx.cbSize;
 
 	HRESULT hr = xaudio->CreateSourceVoice(&voice1, &wav1.wfx, 0, 1.0, NULL, NULL, NULL);
-	xaudio->CreateSourceVoice(&voice2, &wav2.wfx, 0, 1.0);
 
 	if (FAILED(hr)) {
 		std::cerr << "CreateSourceVoice failed: 0x"
@@ -55,33 +55,30 @@ int main() {
 	buf.pAudioData = wav1.buffer.data();
 	buf.AudioBytes = (UINT32)wav1.buffer.size();
 	buf.Flags = XAUDIO2_END_OF_STREAM;
+	buf.LoopBegin = 0;
+	buf.LoopLength = buf.PlayLength;
+	buf.LoopCount = XAUDIO2_LOOP_INFINITE;
 
 	//voice1->Stop();      // reset voice
 	//voice1->FlushSourceBuffers();
 	voice1->SubmitSourceBuffer(&buf);
 	voice1->Start();
-	// cleanup
-	//Sleep(3000);
-	XAUDIO2_BUFFER buf1 = { 0 };
-	buf1.pAudioData = wav1.buffer.data();
-	buf1.AudioBytes = (UINT32)wav1.buffer.size();
-	buf1.Flags = XAUDIO2_END_OF_STREAM;
-
-	voice1->Stop();      // reset voice
-	voice1->FlushSourceBuffers();
-	voice1->SubmitSourceBuffer(&buf1);
-	voice1->Start();
-
-
-
+	test();
+	 //cleanup
 	voice1->DestroyVoice();
-	voice2->DestroyVoice();
 	master->DestroyVoice();
 	xaudio->Release();
 
 	CoUninitialize();
 
 	return 0;
+}
+
+void test() {
+	char q{};
+	while (q != 'n') {
+		std::cin >> q;
+	}
 }
 
 SoundData FromWavFile(const std::string& path) {
@@ -163,9 +160,11 @@ SoundData FromCsvFile(const std::string& path) {
 		std::cerr << "Nie mozna odtworzyc pliku csv do stworzenia SoundData" << std::endl;
 		return s;
 	}
+	
+	//std::string line;
 	double value;
 	while (f >> value) {
-		short pcm = (short)(value * 32767.0f);
+		short pcm = static_cast<short>(value * 32767.0f);
 		BYTE* p = reinterpret_cast<BYTE*>(&pcm);
 		s.buffer.push_back(p[0]);
 		s.buffer.push_back(p[1]);

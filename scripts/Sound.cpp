@@ -9,12 +9,20 @@ Sound::Sound() : xaudio{nullptr}, master{nullptr}
 	}
 
 	xaudio->CreateMasteringVoice(&master);
+
+	for (int i{}; i < static_cast<int>(Voices::OSYLATOR_B) + 1; i++)
+		voiceVector.push_back(VoiceData{});
+
+	createVoice("sounds\\bitt.wav", Voices::METRONOM_SLABY);
+	createVoice("sounds\\barr.wav", Voices::METRONOM_GLOSNY);
+	createVoice("dane\\dane.csv", Voices::OSCYLATOR_A);
 }
 
 Sound::~Sound()
 {
-	for (auto& v : voices) {
-		v.voice->DestroyVoice();
+	for (auto& v : voiceVector) {
+		if (v.voice != nullptr)
+			v.voice->DestroyVoice();
 	}
 	if (master != nullptr) {
 		master->DestroyVoice();
@@ -23,32 +31,52 @@ Sound::~Sound()
 	CoUninitialize();
 }
 
-void Sound::playSound(const Voice& voice) const {
-	voice.voice->Start();
-
-
+void Sound::playSound(const enum Voices& dzwiek) {
+	size_t i = (size_t)dzwiek;
+	voiceVector.at(i).voice->Stop();
+	if (voiceVector.at(i).voice != nullptr)
+		voiceVector.at(i).voice->FlushSourceBuffers();
+	voiceVector.at(i).buf.AudioBytes = (UINT32)voiceVector.at(i).wav.buffer.size();
+	voiceVector.at(i).buf.pAudioData = voiceVector.at(i).wav.buffer.data();
+	if (dzwiek == Voices::OSCYLATOR_A || dzwiek == Voices::OSYLATOR_B) {
+		voiceVector.at(i).buf.LoopBegin = 0;
+		voiceVector.at(i).buf.LoopLength = voiceVector.at(i).buf.PlayLength;
+		voiceVector.at(i).buf.LoopCount = XAUDIO2_LOOP_INFINITE;
+	}
+	voiceVector.at(i).buf.Flags = XAUDIO2_END_OF_STREAM;
+	voiceVector.at(i).voice->SubmitSourceBuffer(&voiceVector.at(i).buf);
+	voiceVector.at(i).voice->Start();
 }
 
-void Sound::deleteVoice(Voice& voice)
+void Sound::stopSound(const enum Voices& dzwiek) {
+	size_t i = (size_t)dzwiek;
+	voiceVector.at(i).voice->Stop();
+	if (voiceVector.at(i).voice != nullptr)
+		voiceVector.at(i).voice->FlushSourceBuffers();
+}
+
+void Sound::deleteVoice(VoiceData& voice)
 {
-	for (size_t i{}; i < voices.size(); i++) {
-		if (voices[i].path == voice.path) {
-			voices[i].voice->DestroyVoice();
-			voices.erase(voices.begin() + i);
+	for (size_t i{}; i < voiceVector.size(); i++) {
+		if (voiceVector[i].path == voice.path) {
+			voiceVector[i].voice->DestroyVoice();
+			voiceVector.erase(voiceVector.begin() + i);
 			break;
 		}
 	}
 }
 
-void Sound::createVoice(Voice& voice, const std::string& path) {
+void Sound::createVoice(const std::string& path, enum Voices dzwiek) {
+	size_t i = (size_t)dzwiek;
+	VoiceData voice;
 	voice.path = path;
-	voice.wav = fromWaveFile(voice.path);
+	if (path[path.size() - 3] == 'c' ) {
+		voice.wav = fromCsvFile(voice.path);
+	}
+	else
+		voice.wav = fromWaveFile(voice.path);
 	xaudio->CreateSourceVoice(&voice.voice, &voice.wav.wfx, 0, 1.0, NULL, NULL, NULL);
-	voice.buf.AudioBytes = (UINT32)voice.wav.buffer.size();
-	voice.buf.pAudioData = voice.wav.buffer.data();
-	voice.buf.Flags = XAUDIO2_END_OF_STREAM;
-	voice.voice->SubmitSourceBuffer(&voice.buf);
-	voices.push_back(voice);
+	voiceVector.at(i) = voice;
 
 }
 

@@ -13,8 +13,6 @@
 #include "WAVHeader.h"
 #include "Sound.h"
 
-
-
 class Fala
 {
 	// czespr / czes
@@ -26,6 +24,7 @@ private:
 	static constexpr double defprzesunieceFazy = 0;
 	static constexpr int defChannels = 1;
 	static constexpr double czestotliwoscRysowania = 0.0001;
+	static constexpr bool defActiveSound = false;
 
 protected:
 	double czestotliwosc;
@@ -34,15 +33,18 @@ protected:
 	double amplituda;
 	double przesuniecieFazy;
 	int channels;
+	bool activeSound;
 
 public:
-	Fala() : czestotliwosc{ defCzestotliwosc }, czestotliwoscProbkowania{ defCzestotliwoscProbkowania }, glosnosc{ defGlosnosc }, amplituda{ defAmplituda }, przesuniecieFazy{ defprzesunieceFazy }, channels{ defChannels } {}
+	Fala() : czestotliwosc{ defCzestotliwosc }, czestotliwoscProbkowania{ defCzestotliwoscProbkowania }, glosnosc{ defGlosnosc }, amplituda{ defAmplituda }, przesuniecieFazy{ defprzesunieceFazy }, channels{ defChannels }, activeSound{ defActiveSound } {}
 	~Fala() = default;
 	bool create() {}
 	void draw() const;
 	void zmienFaze(double x);
 	void stworzWav();
 	double getFaza() const;
-	void grajDzwiek();
+	enum Voices grajDzwiek();
+	bool isActive() const { return activeSound; }
+	void setActive(const bool status) { activeSound = status; }
 };
 

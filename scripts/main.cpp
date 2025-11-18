@@ -11,13 +11,11 @@
 
 std::atomic<bool> grajMetronomBool = false;
 std::atomic<bool> koniecProgramu = false;
-std::atomic<bool> grajSinus = false;
+Sound sound;
 
 void zagrajMetronom(std::shared_ptr<Metronom> metronom);
-void zagrajDzwiek(std::shared_ptr<Fala> sinus);
-void cleanup();
 
-int main2() {
+int main() {
 	// ustawianie serwera i socket dla komunikacji z pythonem
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
@@ -49,7 +47,6 @@ int main2() {
 	SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
 	std::cout << "Polaczono z klientem\n";
 
-	Sound sound;
 	std::shared_ptr<Fala> sinus = std::make_shared<Fala>();
 	sinus->draw();
 
@@ -59,9 +56,8 @@ int main2() {
 
 	send(clientSocket, content.c_str(), content.size(), 0);
 
-	std::shared_ptr metronom = std::make_unique<Metronom>(sound);
+	std::shared_ptr metronom = std::make_unique<Metronom>();
 	std::thread metronomThread(zagrajMetronom, metronom);
-	std::thread sinusThread(zagrajDzwiek, sinus);
 
 	// odbieranie danych z Pythona
 	char buffer[1024] = {0};
@@ -72,8 +68,6 @@ int main2() {
 			// klient siê rozlaczyl lub blad
 			break;
 		}
-
-		//buffer[valread] = '\0'; // zakoñcz string, bo recv nie dodaje '\0'
 
 		size_t pos;
 		buf.append(buffer, valread);
@@ -97,11 +91,15 @@ int main2() {
 				std::cout << "Zmiana przesuniecia fazy o: " << value << std::endl;
 			}
 			else if (cmd == "FALA") {
-				//sinus->grajDzwiek();
+				if (sinus->isActive()) {
+					sound.stopSound(sinus->grajDzwiek());
+				} else 
+					sound.playSound(sinus->grajDzwiek());
+				sinus->setActive(!sinus->isActive());
 				std::cout << "Muzyka" << std::endl;
 			}
 			else if (cmd == "METRO") {
-				grajSinus = !grajSinus;
+				metronom->changeTempo(value);
 				std::cout << "Zmiana tempa metronomu o " << value << std::endl;
 			}
 			else if (cmd == "METROON") {
@@ -113,12 +111,11 @@ int main2() {
 		std::cout << "Otrzymano z Pythona: " << buffer << std::endl;
 		if (buffer)
 
-		memset(buffer, 0, sizeof(buffer)); // wyczyœæ bufor
+		memset(buffer, 0, sizeof(buffer)); // wyczysc bufor
 	}
 
 	koniecProgramu = true;
 	metronomThread.join();
-	sinusThread.join();
 
 	closesocket(clientSocket);
 	closesocket(serverSocket);
@@ -130,26 +127,14 @@ int main2() {
 void zagrajMetronom(std::shared_ptr<Metronom> metronom) {
 	while (!koniecProgramu) {
 		if (grajMetronomBool) {
-			metronom->play();
+			enum Voices voice = metronom->play();
+			if (voice != Voices::EMPTY)
+				sound.playSound(voice);
 		}
 		else {
 			metronom->quit();
 		}
 	}
-}
-
-void zagrajDzwiek(std::shared_ptr<Fala> s) {
-	//while (!koniecProgramu) {
-	//	//s->stworzWav();
-	//	while (grajSinus) {
-	//		//s->grajDzwiek();
-	//	}
-	//}
-	return;
-}
-
-void cleanup() {
-
 }
 
 /*if (cmd == "AMP") {

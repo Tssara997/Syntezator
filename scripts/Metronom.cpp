@@ -1,15 +1,7 @@
 #include "HeaderFiles/Metronom.h"
 
-Metronom::Metronom(Sound& sound, int tempo) : tempo{ tempo }, czasInterwalu{}, numerInterwalu{}, start{ std::chrono::steady_clock::now() }, sound{ sound } {
+Metronom::Metronom(int tempo) : tempo{ tempo }, czasInterwalu{}, numerInterwalu{}, start{ std::chrono::steady_clock::now() } {
 	obliczanieTrwaniaTempa();
-	this->sound.createVoice(metronomMocny, "sounds\\barr.wav");
-	this->sound.createVoice(metronomSlaby, "sounds\\bitt.wav");
-}
-
-Metronom::~Metronom()
-{
-	sound.deleteVoice(metronomMocny);
-	sound.deleteVoice(metronomSlaby);
 }
 
 void Metronom::obliczanieTrwaniaTempa() {
@@ -29,18 +21,19 @@ bool Metronom::zobaczCzyInterwal() {
 }
 
 void Metronom::playSound() {
-	if (numerInterwalu != 0) {  // granie slabego beata
-		sound.playSound(metronomSlaby);
-	}
-	else { // granie mocnego beata
-		sound.playSound(metronomMocny);
-	}
+	return;
 }
 
-void Metronom::play() {
+enum Voices Metronom::play() {
 	if (zobaczCzyInterwal()) {
-		playSound();
+		if (numerInterwalu == 0) {
+			return Voices::METRONOM_GLOSNY;
+		}
+		else {
+			return Voices::METRONOM_SLABY;
+		}
 	}
+	return Voices::EMPTY;
 }
 
 void Metronom::quit() {
@@ -53,6 +46,5 @@ int Metronom::getTempo() const {
 
 void Metronom::changeTempo(int tempo) {
 	this->tempo = tempo;
-	this->numerInterwalu = 0;
 	obliczanieTrwaniaTempa();
 }
