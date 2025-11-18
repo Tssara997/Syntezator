@@ -15,16 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Metronom.cpp">
+    <ClCompile Include="scripts\Fala.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="Fala.cpp">
+    <ClCompile Include="scripts\main.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="testing.cpp">
+    <ClCompile Include="scripts\Metronom.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="scripts\testing.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\Sound.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
   </ItemGroup>
@@ -40,23 +43,26 @@
     </Media>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SoundNotLoadingExepction.h">
+    <ClInclude Include="scripts\HeaderFiles\Fala.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="Fala.h">
+    <ClInclude Include="scripts\HeaderFiles\Metronom.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="Metronom.h">
+    <ClInclude Include="scripts\HeaderFiles\SoundNotLoadingExepction.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="WAVHeader.h">
+    <ClInclude Include="scripts\HeaderFiles\WAVHeader.h">
+      <Filter>Pliki nagłówkowe</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts\HeaderFiles\Sound.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="rysowanie.py" />
-    <None Include="CanvasButton.py" />
-    <None Include="Przyciski.py" />
+    <None Include="scripts\GUI\CanvasButton.py" />
+    <None Include="scripts\GUI\Przyciski.py" />
+    <None Include="scripts\GUI\rysowanie.py" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="logo.png">

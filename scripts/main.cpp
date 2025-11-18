@@ -2,23 +2,22 @@
 #include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 
-#include <iostream>
 #include <chrono>
 #include <thread>
 #include <atomic>
-#include <memory>
 
-#include "Fala.h"
-#include "Metronom.h"
+#include "HeaderFiles/Fala.h"
+#include "HeaderFiles/Metronom.h"
 
 std::atomic<bool> grajMetronomBool = false;
 std::atomic<bool> koniecProgramu = false;
-
-std::shared_ptr metronom = std::make_unique<Metronom>();
+std::atomic<bool> grajSinus = false;
 
 void zagrajMetronom(std::shared_ptr<Metronom> metronom);
+void zagrajDzwiek(std::shared_ptr<Fala> sinus);
+void cleanup();
 
-int main() {
+int main2() {
 	// ustawianie serwera i socket dla komunikacji z pythonem
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
@@ -43,23 +42,26 @@ int main() {
 
 	// uruchamianie pythona
 	std::cout << "Uruchamianie klienta Python...\n";
-	std::system("start /B python rysowanie.py"); // Windows: /B = bez nowego okna
+	std::system("start /B python scripts\\GUI\\rysowanie.py"); // Windows: /B = bez nowego okna
 	std::this_thread::sleep_for(std::chrono::seconds(1)); // czas by python zdazyl sie polaczyc
 
 	std::cout << "Serwer c++ czeka na polaczenie...\n";
 	SOCKET clientSocket = accept(serverSocket, nullptr, nullptr);
 	std::cout << "Polaczono z klientem\n";
 
-	Fala sinus{};
-	sinus.draw();
+	Sound sound;
+	std::shared_ptr<Fala> sinus = std::make_shared<Fala>();
+	sinus->draw();
 
-	std::ifstream file("dane.csv");
+	std::ifstream file("dane\\wykres.csv");
 	std::string content((std::istreambuf_iterator<char>(file)),
 		std::istreambuf_iterator<char>());
 
 	send(clientSocket, content.c_str(), content.size(), 0);
 
+	std::shared_ptr metronom = std::make_unique<Metronom>(sound);
 	std::thread metronomThread(zagrajMetronom, metronom);
+	std::thread sinusThread(zagrajDzwiek, sinus);
 
 	// odbieranie danych z Pythona
 	char buffer[1024] = {0};
@@ -85,9 +87,9 @@ int main() {
 			iss >> cmd >> value;
 
 			if (cmd == "FAZA") {
-				sinus.zmienFaze(sinus.getFaza() + value);
-				sinus.draw();
-				std::ifstream file("dane.csv");
+				sinus->zmienFaze(sinus->getFaza() + value);
+				sinus->draw();
+				std::ifstream file("dane\\wykres.csv");
 				std::string content((std::istreambuf_iterator<char>(file)),
 					std::istreambuf_iterator<char>());
 
@@ -95,11 +97,11 @@ int main() {
 				std::cout << "Zmiana przesuniecia fazy o: " << value << std::endl;
 			}
 			else if (cmd == "FALA") {
-				sinus.grajDzwiek();
+				//sinus->grajDzwiek();
 				std::cout << "Muzyka" << std::endl;
 			}
 			else if (cmd == "METRO") {
-				metronom->changeTempo(value);
+				grajSinus = !grajSinus;
 				std::cout << "Zmiana tempa metronomu o " << value << std::endl;
 			}
 			else if (cmd == "METROON") {
@@ -116,6 +118,7 @@ int main() {
 
 	koniecProgramu = true;
 	metronomThread.join();
+	sinusThread.join();
 
 	closesocket(clientSocket);
 	closesocket(serverSocket);
@@ -133,6 +136,20 @@ void zagrajMetronom(std::shared_ptr<Metronom> metronom) {
 			metronom->quit();
 		}
 	}
+}
+
+void zagrajDzwiek(std::shared_ptr<Fala> s) {
+	//while (!koniecProgramu) {
+	//	//s->stworzWav();
+	//	while (grajSinus) {
+	//		//s->grajDzwiek();
+	//	}
+	//}
+	return;
+}
+
+void cleanup() {
+
 }
 
 /*if (cmd == "AMP") {

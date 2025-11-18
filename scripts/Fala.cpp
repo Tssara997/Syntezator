@@ -1,8 +1,7 @@
-#include "Fala.h"
-
+#include "HeaderFiles/Fala.h"
 void Fala::draw() const
 {
-    std::ofstream file("dane.csv");
+    std::ofstream file("dane\\dane.csv");
 
     // try
    /* if (!file.is_open()) {
@@ -16,6 +15,14 @@ void Fala::draw() const
     }
 
     file.close();
+    std::ofstream filePy("dane\\wykres.csv");
+
+    for (double x = 0; x <= 1 / czestotliwosc + czestotliwoscRysowania; x += czestotliwoscRysowania) {
+        double y = amplituda * sin(2 * M_PI * czestotliwosc * x + przesuniecieFazy);
+        filePy<< y << "\n";
+    }
+
+    filePy.close();
 }
 
 void Fala::zmienFaze(double x)
@@ -28,11 +35,10 @@ double Fala::getFaza() const
     return przesuniecieFazy;
 }
 
-void Fala::grajDzwiek()
-{
-    //draw();
-    std::string csvFile = "dane.csv";
-    std::string wavFile = "output.wav";
+void Fala::stworzWav() {
+
+    std::string csvFile = "dane\\dane.csv";
+    std::string wavFile = "dane\\output.wav";
     std::ifstream in(csvFile);
     if (!in.is_open()) {
         std::cerr << "Nie mozna otworzyc pliku csv\n";
@@ -69,11 +75,9 @@ void Fala::grajDzwiek()
 
     std::cout << "Plik WAV zapisany jako: " << wavFile << "\n";
 
-    Sleep(100);
+    //Sleep(100);
+}
 
-    PlaySound(
-        TEXT("output.wav"),
-        NULL,
-        SND_FILENAME | SND_ASYNC | SND_LOOP
-    );
+void Fala::grajDzwiek()
+{
 }

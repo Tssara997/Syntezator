@@ -112,6 +112,7 @@ def receive_data():
             dane = server_socket.recv(100000).decode().strip()
             if dane:
                 y = przetwarzanieDanych(dane)
+                print(len(y))
                 master.after(0, lambda: nowe_dane(y))
         except BlockingIOError:
             pass

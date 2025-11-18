@@ -7,7 +7,12 @@
 #include <sstream>
 #include <fstream>
 #include <Windows.h>
+#include <x3daudio.h>
+
+#pragma comment(lib, "xaudio2.lib")
 #include "WAVHeader.h"
+#include "Sound.h"
+
 
 
 class Fala
@@ -20,6 +25,7 @@ private:
 	static constexpr double defAmplituda = 0.5;
 	static constexpr double defprzesunieceFazy = 0;
 	static constexpr int defChannels = 1;
+	static constexpr double czestotliwoscRysowania = 0.0001;
 
 protected:
 	double czestotliwosc;
@@ -35,6 +41,7 @@ public:
 	bool create() {}
 	void draw() const;
 	void zmienFaze(double x);
+	void stworzWav();
 	double getFaza() const;
 	void grajDzwiek();
 };

@@ -1,7 +1,15 @@
-#include "Metronom.h"
+#include "HeaderFiles/Metronom.h"
 
-Metronom::Metronom(int tempo) : tempo{ tempo }, czasInterwalu{}, numerInterwalu{}, start{ std::chrono::steady_clock::now() } {
+Metronom::Metronom(Sound& sound, int tempo) : tempo{ tempo }, czasInterwalu{}, numerInterwalu{}, start{ std::chrono::steady_clock::now() }, sound{ sound } {
 	obliczanieTrwaniaTempa();
+	this->sound.createVoice(metronomMocny, "sounds\\barr.wav");
+	this->sound.createVoice(metronomSlaby, "sounds\\bitt.wav");
+}
+
+Metronom::~Metronom()
+{
+	sound.deleteVoice(metronomMocny);
+	sound.deleteVoice(metronomSlaby);
 }
 
 void Metronom::obliczanieTrwaniaTempa() {
@@ -20,34 +28,18 @@ bool Metronom::zobaczCzyInterwal() {
 	return false;
 }
 
-const void Metronom::playSound() const {
-	if (!PlaySound(TEXT("sounds\\barr.wav"), NULL, SND_FILENAME | SND_ASYNC) || 
-		!PlaySound(TEXT("sounds\\bitt.wav"), NULL, SND_FILENAME | SND_ASYNC))
-		throw SoundNotLoadingExepction();
+void Metronom::playSound() {
 	if (numerInterwalu != 0) {  // granie slabego beata
-		PlaySound(
-			TEXT("sounds\\bitt.wav"),
-			NULL,
-			SND_FILENAME | SND_ASYNC
-		);
+		sound.playSound(metronomSlaby);
 	}
 	else { // granie mocnego beata
-		PlaySound(
-			TEXT("sounds\\barr.wav"),
-			NULL,
-			SND_FILENAME | SND_ASYNC
-		);
+		sound.playSound(metronomMocny);
 	}
 }
 
 void Metronom::play() {
 	if (zobaczCzyInterwal()) {
-		try {
-			playSound();
-		}
-		catch(const SoundNotLoadingExepction& ex) {
-			std::cerr << ex.what() << std::endl;
-		}
+		playSound();
 	}
 }
 
