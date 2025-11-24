@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import threading
 from Przyciski import Metronom
 from PIL import Image, ImageTk
+from tkdial import Dial
 
 # połącz się z serwerem C++
 HOST = "127.0.0.1"
@@ -18,6 +19,17 @@ PORT = 12345
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.connect((HOST, PORT))
 server_socket.setblocking(False)
+delay = None
+delayTime = 0  # milliseconds
+
+def sendValue(x):
+    server_socket.sendall(x.encode())
+
+def checkDelay(msg):
+    global delay
+    if delay:
+        master.after_cancel(delay)
+    delay = master.after(delayTime, lambda: sendValue(msg))
 
 def przetwarzanieDanych(dane):
     y = []
@@ -28,7 +40,6 @@ def przetwarzanieDanych(dane):
         y.append(float(line_data))
     return y
 
-
 def wyjdz():
     master.destroy()
     try:
@@ -38,17 +49,18 @@ def wyjdz():
         pass
 
 def zmianaFazy():
-    msg = "FAZA 1\n"
-    server_socket.sendall(msg.encode())
-    
+    sendValue("FAZA 1\n")
 
-def zmianaAmplitudy():
-    msg = "AMP 0.5\n"
-    server_socket.sendall(msg.encode())
+def zmianaAmplitudy(x):
+    msg = "AMP " + str(amp.get()) + "\n"
+    checkDelay(msg)
+
+def zmianaCzestotliwosci(x):
+    msg = "FREQ " + str(freq.get()) + "\n"
+    checkDelay(msg)
 
 def dzwiek():
-    msg = "FALA \n"
-    server_socket.sendall(msg.encode())
+    sendValue("FALA \n")
 
 master = tk.Tk()
 master.title("WHat")
@@ -80,11 +92,11 @@ metronom_B.grid(row = 0, column = 1, sticky = "nw")
 oscyAFrame = tk.Frame(master)
 oscyAFrame.grid(row = 0, column= 1, sticky="nse")
 
-faza_B = tk.Button(oscyAFrame, text = "faza++", command = zmianaFazy)
-faza_B.pack()
+dzwiek_B = tk.Button(oscyAFrame, text = "ON", command = dzwiek)
+dzwiek_B.pack()
 
 # tworzenie wykresu
-fig = figure.Figure(figsize=(7,5), dpi = 100)
+fig = figure.Figure(figsize=(8,4), dpi = 70)
 plot1 = fig.add_subplot(111)
 plot1.axes.get_xaxis().set_visible(False)
 plot1.axes.get_yaxis().set_visible(False)
@@ -119,16 +131,19 @@ def receive_data():
         except OSError:
             break  # zamknięto socket
 
-dzwiek_B = tk.Button(oscyAFrame, text = "ON", command = dzwiek)
-dzwiek_B.pack()
+amp = tk.DoubleVar()
+amplituda_S = tk.Scale(oscyAFrame, from_ = 0, to = 2, resolution = 0.01, orient = "horizontal", label = "amplituda", variable=amp, command= zmianaAmplitudy)
+amplituda_S.pack()
+
+freq = tk.DoubleVar()
+czestotliwosc_S = tk.Scale(oscyAFrame, label = "czestotliwosc", from_ = 50, to = 700, resolution= 2, orient = "horizontal", variable=freq, command = zmianaCzestotliwosci) 
+czestotliwosc_S.pack()
 
 # Sekcja oscylatora B
 oscyBFrame = tk.Frame(master)
 oscyBFrame.grid(row = 0, column= 2, sticky="nsew")
 quit_B = tk.Button(oscyBFrame, text="wyjdz", command = wyjdz)
 quit_B.pack()
-
-
 
 threading.Thread(target=receive_data, daemon=True).start()
 

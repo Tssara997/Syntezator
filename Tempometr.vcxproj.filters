@@ -63,6 +63,20 @@
     <None Include="scripts\GUI\CanvasButton.py" />
     <None Include="scripts\GUI\Przyciski.py" />
     <None Include="scripts\GUI\rysowanie.py" />
+    <None Include="scripts\GUI\TkDial-main\LICENSE" />
+    <None Include="scripts\GUI\TkDial-main\README.md" />
+    <None Include="scripts\GUI\TkDial-main\tkdial\__init__.py" />
+    <None Include="scripts\GUI\TkDial-main\tkdial\imageknob.py" />
+    <None Include="scripts\GUI\TkDial-main\tkdial\jogwheel.py" />
+    <None Include="scripts\GUI\TkDial-main\tkdial\meter.py" />
+    <None Include="scripts\GUI\TkDial-main\tkdial\scrollknob.py" />
+    <None Include="scripts\GUI\TkDial-main\tkdial\tkdial.py" />
+    <None Include="scripts\GUI\tkdial\__init__.py" />
+    <None Include="scripts\GUI\tkdial\imageknob.py" />
+    <None Include="scripts\GUI\tkdial\jogwheel.py" />
+    <None Include="scripts\GUI\tkdial\meter.py" />
+    <None Include="scripts\GUI\tkdial\scrollknob.py" />
+    <None Include="scripts\GUI\tkdial\tkdial.py" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="logo.png">

@@ -49,6 +49,7 @@ int main() {
 
 	std::shared_ptr<Fala> sinus = std::make_shared<Fala>();
 	sinus->draw();
+	sound.SoundInit();
 
 	std::ifstream file("dane\\wykres.csv");
 	std::string content((std::istreambuf_iterator<char>(file)),
@@ -62,12 +63,14 @@ int main() {
 	// odbieranie danych z Pythona
 	char buffer[1024] = {0};
 	std::string buf;
+	std::cout << -XAUDIO2_MAX_VOLUME_LEVEL << ' ' << XAUDIO2_MAX_VOLUME_LEVEL << "\n";
 	while (true) {
 		int valread = recv(clientSocket, buffer, sizeof(buffer), 0);
 		if (valread <= 0) {
 			// klient siê rozlaczyl lub blad
 			break;
 		}
+
 
 		size_t pos;
 		buf.append(buffer, valread);
@@ -80,20 +83,22 @@ int main() {
 			double value;
 			iss >> cmd >> value;
 
-			if (cmd == "FAZA") {
-				sinus->zmienFaze(sinus->getFaza() + value);
-				sinus->draw();
-				std::ifstream file("dane\\wykres.csv");
-				std::string content((std::istreambuf_iterator<char>(file)),
-					std::istreambuf_iterator<char>());
+			if (cmd == "AMP") {
+				sinus->zmienAmplitude( value );
+				sound.setVolumeRatio(sinus->grajDzwiek(), value);
+				std::cout << "Zmiana amplitudy: " << value << std::endl;
+			}
+			else if (cmd == "FREQ") {
+				sinus->zmienCzestotliwosc( value);
+				sound.setfrequencyRatio(sinus->grajDzwiek(), value);
 
-				send(clientSocket, content.c_str(), content.size(), 0);
-				std::cout << "Zmiana przesuniecia fazy o: " << value << std::endl;
+				std::cout << "Zmiana czestotliwosci: " << value << std::endl;
 			}
 			else if (cmd == "FALA") {
 				if (sinus->isActive()) {
 					sound.stopSound(sinus->grajDzwiek());
-				} else 
+				}
+				else
 					sound.playSound(sinus->grajDzwiek());
 				sinus->setActive(!sinus->isActive());
 				std::cout << "Muzyka" << std::endl;
@@ -129,6 +134,7 @@ void zagrajMetronom(std::shared_ptr<Metronom> metronom) {
 		if (grajMetronomBool) {
 			enum Voices voice = metronom->play();
 			if (voice != Voices::EMPTY)
+				continue;
 				sound.playSound(voice);
 		}
 		else {
@@ -136,14 +142,3 @@ void zagrajMetronom(std::shared_ptr<Metronom> metronom) {
 		}
 	}
 }
-
-/*if (cmd == "AMP") {
-				sinus.zmienAmplitude(sinus.getAmplituda() + value);
-				sinus.draw();
-				std::ifstream file("dane.csv");
-				std::string content((std::istreambuf_iterator<char>(file)),
-					std::istreambuf_iterator<char>());
-
-				send(clientSocket, content.c_str(), content.size(), 0);
-				std::cout << "Zmiana amplitudy o: " << value << std::endl;
-			}*/

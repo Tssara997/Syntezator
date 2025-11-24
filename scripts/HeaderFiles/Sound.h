@@ -44,6 +44,8 @@ protected:
 	IXAudio2* xaudio;
 	IXAudio2MasteringVoice* master;
 	std::vector<VoiceData> voiceVector;
+	double frequencyRatio;
+	double volumeRatio;
 
 public:
 	Sound();
@@ -54,5 +56,9 @@ public:
 	void deleteVoice(VoiceData& voice);
 	void createVoice(const std::string& path, enum Voices );
 	void stopSound(const enum Voices& dzwiek);
+	void setfrequencyRatio(const enum Voices& dzwiek, const double& ratio);
+	void setVolumeRatio(const enum Voices& dzwiek, const double& ratio);
+	void SoundInit();
+
 };
 

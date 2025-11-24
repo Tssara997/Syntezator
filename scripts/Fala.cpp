@@ -1,7 +1,6 @@
 #include "HeaderFiles/Fala.h"
 void Fala::draw() const
 {
-    std::ofstream file("dane\\dane.csv");
 
     // try
    /* if (!file.is_open()) {
@@ -9,20 +8,52 @@ void Fala::draw() const
         return 1;
     }*/
 
-    for (double x = 0; x <=czestotliwosc; x += 1) {
-        double y =  amplituda * sin(2 * M_PI * czestotliwosc * x/czestotliwoscProbkowania  + przesuniecieFazy);
+    std::ofstream file("dane\\dane.csv");
+
+    file.clear();
+
+    for (double t = 0; t < okres ; t += 1/czestotliwoscProbkowania) {
+        double y =  amplituda * sin(2 * M_PI * czestotliwosc * t  + przesuniecieFazy);
         file << y << "\n";
     }
 
     file.close();
     std::ofstream filePy("dane\\wykres.csv");
 
-    for (double x = 0; x <= 1 / czestotliwosc + czestotliwoscRysowania; x += czestotliwoscRysowania) {
+	filePy.clear();
+
+     //sin
+    for (double x = 0; x < 1 / czestotliwosc + czestotliwoscRysowania; x += czestotliwoscRysowania) {
         double y = amplituda * sin(2 * M_PI * czestotliwosc * x + przesuniecieFazy);
         filePy<< y << "\n";
     }
 
+
+
+    // cos
+
+    //for (double x = 0; x < 1 / czestotliwosc + czestotliwoscRysowania; x += czestotliwoscRysowania) {
+    //    double y = amplituda * cos(2 * M_PI * czestotliwosc * x + przesuniecieFazy);
+    //    filePy<< y << "\n";
+    //}
+
+    // trojkat
+    //double x = (1 / czestotliwosc + 2*czestotliwoscRysowania)/2;
+
+    //for (double t = -x; t <= x; t += czestotliwoscRysowania) {
+    //    double y =  max(amplituda- abs(t), 0);
+    //    filePy<< y << "\n";
+    //}
+
+    
+    //int x = okres / 2;
+
+    //for (double t = -x; t <= x; t += 1/czestotliwoscProbkowania) {
+    //    double y = max(amplituda - abs(t), 0);
+    //    filePy << y << "\n";
+    //}
     filePy.close();
+
 }
 
 void Fala::zmienFaze(double x)
@@ -33,6 +64,16 @@ void Fala::zmienFaze(double x)
 double Fala::getFaza() const
 {
     return przesuniecieFazy;
+}
+
+void Fala::zmienAmplitude(double x)
+{
+    amplituda = x;
+}
+
+double Fala::getAmplituda() const
+{
+    return amplituda;
 }
 
 void Fala::stworzWav() {
@@ -82,3 +123,4 @@ enum Voices Fala::grajDzwiek()
 {
 	return Voices::OSCYLATOR_A;
 }
+////////////

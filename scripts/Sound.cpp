@@ -1,9 +1,13 @@
 #include "HeaderFiles/Sound.h"
 
-Sound::Sound() : xaudio{nullptr}, master{nullptr}
+Sound::Sound() : xaudio{nullptr}, master{nullptr}, frequencyRatio{1.0}, volumeRatio{1.0}
+{
+}
+
+void Sound::SoundInit()
 {
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-	
+
 	if (FAILED(XAudio2Create(&xaudio, 0))) {
 		std::cerr << "XAudioCreate Failed" << std::endl;
 	}
@@ -33,7 +37,7 @@ Sound::~Sound()
 
 void Sound::playSound(const enum Voices& dzwiek) {
 	size_t i = (size_t)dzwiek;
-	voiceVector.at(i).voice->Stop();
+	voiceVector.at(i).voice->Stop(XAUDIO2_PLAY_TAILS);
 	if (voiceVector.at(i).voice != nullptr)
 		voiceVector.at(i).voice->FlushSourceBuffers();
 	voiceVector.at(i).buf.AudioBytes = (UINT32)voiceVector.at(i).wav.buffer.size();
@@ -42,10 +46,23 @@ void Sound::playSound(const enum Voices& dzwiek) {
 		voiceVector.at(i).buf.LoopBegin = 0;
 		voiceVector.at(i).buf.LoopLength = voiceVector.at(i).buf.PlayLength;
 		voiceVector.at(i).buf.LoopCount = XAUDIO2_LOOP_INFINITE;
+		voiceVector.at(i).voice->SetFrequencyRatio(frequencyRatio); // octawy
+		voiceVector.at(i).voice->SetVolume(volumeRatio);
 	}
 	voiceVector.at(i).buf.Flags = XAUDIO2_END_OF_STREAM;
 	voiceVector.at(i).voice->SubmitSourceBuffer(&voiceVector.at(i).buf);
 	voiceVector.at(i).voice->Start();
+	
+}
+
+void Sound::setfrequencyRatio(const enum Voices& dzwiek, const double& ratio) {
+	frequencyRatio = 265/ratio;
+	voiceVector.at((size_t)dzwiek).voice->SetFrequencyRatio(frequencyRatio);
+}
+
+void Sound::setVolumeRatio(const enum Voices& dzwiek, const double& ratio) {
+	volumeRatio = ratio;
+	voiceVector.at((size_t)dzwiek).voice->SetVolume(volumeRatio);
 }
 
 void Sound::stopSound(const enum Voices& dzwiek) {
