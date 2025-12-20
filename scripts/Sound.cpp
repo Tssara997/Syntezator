@@ -47,7 +47,7 @@ void Sound::playSound(const enum Voices& dzwiek) {
 		voiceVector.at(i).buf.LoopLength = voiceVector.at(i).buf.PlayLength;
 		voiceVector.at(i).buf.LoopCount = XAUDIO2_LOOP_INFINITE;
 		voiceVector.at(i).voice->SetFrequencyRatio(frequencyRatio); // octawy
-		voiceVector.at(i).voice->SetVolume(volumeRatio);
+		voiceVector.at(i).voice->SetVolume(volumeRatio); // volume
 	}
 	voiceVector.at(i).buf.Flags = XAUDIO2_END_OF_STREAM;
 	voiceVector.at(i).voice->SubmitSourceBuffer(&voiceVector.at(i).buf);
